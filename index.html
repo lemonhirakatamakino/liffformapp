@@ -6,27 +6,25 @@
   <title>新患アンケート</title>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <script src="https://ajaxzip3.github.io/ajaxzip3.js"></script>
 
   <style>
     body {
       font-family: sans-serif;
       margin: 0;
-      padding: 16px; /* 左右に少しだけ余白を持たせる */
-      display: block; /* 修正2: 中央寄せをやめて左詰めに */
-      background-color: #f8f9fa; /* 背景を少し明るくして見やすく */
+      padding: 16px;
+      display: block;
+      background-color: #f8f9fa;
     }
     form {
       width: 100%;
-      /* スマホで見やすい最大幅に制限しつつ、基本は左寄せ */
       max-width: 500px; 
-      margin: 0 auto 0 0; /* 左寄せを維持 */
+      margin: 0 auto 0 0;
     }
     h3 {
-      text-align: left; /* タイトルも左寄せに */
+      text-align: left;
       margin-bottom: 20px;
-      border-left: 4px solid #00b900; /* LINE風のアクセント（任意） */
+      border-left: 4px solid #00b900;
       padding-left: 10px;
     }
     label {
@@ -36,7 +34,6 @@
       margin-top: 15px;
       margin-bottom: 5px;
     }
-    /* 修正3: 入力欄の文字サイズを16px以上にすることで、iPhoneの自動ズームを防ぐ */
     input, textarea, button {
       width: 100%;
       font-size: 16px; 
@@ -44,7 +41,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
-      appearance: none; /* デフォルトの影を消す */
+      appearance: none;
     }
     small {
       display: block;
@@ -56,14 +53,62 @@
     button {
       margin-top: 24px;
       padding: 14px;
-      background-color: #00b900; /* LINEカラー */
+      background-color: #00b900;
       color: white;
       border: none;
       font-weight: bold;
       cursor: pointer;
     }
-    button:active {
-      background-color: #009900;
+    /* ボタンが無効化（disabled）された時のスタイル */
+    button:disabled {
+      background-color: #ccc !important;
+      cursor: not-allowed;
+    }
+
+    /* --- カスタムアラート（モーダル）のスタイル --- */
+    #custom-alert-overlay {
+      display: none; /* 初期は非表示 */
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #custom-alert-box {
+      background: white;
+      width: 85%;
+      max-width: 320px;
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .alert-header {
+      background: #f1f1f1;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+    }
+    .alert-body {
+      padding: 24px 16px;
+      font-size: 16px;
+      color: #000;
+    }
+    .alert-footer {
+      border-top: 1px solid #eee;
+    }
+    #alert-ok-btn {
+      width: 100%;
+      border: none;
+      background: none;
+      color: #007aff; /* iOS風の青色 */
+      font-size: 17px;
+      font-weight: bold;
+      padding: 12px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -74,12 +119,7 @@
   <h3>新患アンケート</h3>
 
   <label>郵便番号（必須）</label>
-  <input
-    type="text"
-    name="zip"
-    required
-    inputmode="numeric"
-    onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');">
+  <input type="text" name="zip" required inputmode="numeric" onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');">
 
   <label>都道府県（必須）</label>
   <input type="text" name="pref" required>
@@ -100,11 +140,7 @@
   <input type="text" name="name" required>
 
   <label>電話番号（必須）</label>
-  <input
-    type="tel"
-    name="tel"
-    required
-    placeholder="090-1234-5678">
+  <input type="tel" name="tel" required placeholder="090-1234-5678">
 
   <label>
     薬局に事前に伝えておきたいことはありますか？
@@ -113,28 +149,44 @@
   </label>
   <textarea name="message" rows="3"></textarea>
 
-  <!-- LINE情報（非表示） -->
   <input type="hidden" name="line_name">
   <input type="hidden" name="line_user_id">
 
-  <button type="submit">回答する</button>
+  <button type="submit" id="submit-btn">回答する</button>
 </form>
+
+<div id="custom-alert-overlay">
+  <div id="custom-alert-box">
+    <div class="alert-header">レモン薬局 枚方牧野店</div>
+    <div class="alert-body">回答ありがとうございました</div>
+    <div class="alert-footer">
+      <button type="button" id="alert-ok-btn">OK</button>
+    </div>
+  </div>
+</div>
 
 <script>
 async function initLiff() {
   await liff.init({ liffId: "2008712193-tMjgLh5i" });
-
   if (liff.isLoggedIn()) {
     const profile = await liff.getProfile();
     document.querySelector('[name="line_name"]').value = profile.displayName;
     document.querySelector('[name="line_user_id"]').value = profile.userId;
   }
 }
-
 initLiff();
 
-document.getElementById("form").addEventListener("submit", e => {
+const form = document.getElementById("form");
+const submitBtn = document.getElementById("submit-btn");
+const alertOverlay = document.getElementById("custom-alert-overlay");
+const alertOkBtn = document.getElementById("alert-ok-btn");
+
+form.addEventListener("submit", e => {
   e.preventDefault();
+
+  // 対策1: 二重送信防止（ボタンを無効化し、文字を変える）
+  submitBtn.disabled = true;
+  submitBtn.innerText = "送信中...";
 
   fetch(
     "https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec",
@@ -143,12 +195,20 @@ document.getElementById("form").addEventListener("submit", e => {
       body: new FormData(e.target)
     }
   ).then(() => {
-    alert("回答ありがとうございました");
-    liff.closeWindow();
+    // 対策2: カスタムアラートを表示
+    alertOverlay.style.display = "flex";
+  }).catch((err) => {
+    alert("通信エラーが発生しました。もう一度お試しください。");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "回答する";
   });
+});
+
+// OKボタンが押されたらLINE画面を閉じる
+alertOkBtn.addEventListener("click", () => {
+  liff.closeWindow();
 });
 </script>
 
 </body>
 </html>
-
