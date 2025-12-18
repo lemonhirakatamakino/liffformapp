@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>新患アンケート</title>
+
+  <!-- 郵便番号→住所 -->
+  <script src="https://ajaxzip3.github.io/ajaxzip3.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  <h3>新患アンケート</h3>
+
+  <form id="form">
+    郵便番号（必須）<br>
+    <input type="text" name="zip" required
+      onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');"><br><br>
+
+    都道府県（必須）<br>
+    <input type="text" name="pref" required><br><br>
+
+    市区町村（必須）<br>
+    <input type="text" name="city" required><br><br>
+
+    町名・番地（必須）<br>
+    <input type="text" name="town" required><br><br>
+
+    建物名・部屋番号<br>
+    <input type="text" name="building"><br><br>
+
+    お名前（必須）<br>
+    <input type="text" name="name" required><br><br>
+
+    電話番号（必須）<br>
+    <input type="tel" name="tel" required><br><br>
+
+    薬局へ事前に伝えておきたいこと<br>
+    <small>（副作用歴、アレルギー歴、妊娠有無、授乳中など）</small><br>
+    <textarea name="message" rows="4"></textarea><br><br>
+
+    <button type="submit">送信</button>
+  </form>
+
+<script>
+  document.getElementById("form").addEventListener("submit", e => {
+    e.preventDefault();
+
+    fetch(
+      "https://script.google.com/macros/s/AKfycbxqQ2GT0syvIiU0KHHtftNKH5kBsD6NImMFg75nMJpLKcQlxVPcW8NOgAWiozTLFFhm0g/exec",
+      {
+        method: "POST",
+        body: new FormData(e.target)
+      }
+    ).then(() => {
+      alert("送信しました");
+    }).catch(() => {
+      alert("送信に失敗しました。時間をおいて再度お試しください。");
+    });
+  });
+</script>
+</body>
+</html>
