@@ -9,76 +9,108 @@
 
   <!-- 郵便番号→住所 -->
   <script src="https://ajaxzip3.github.io/ajaxzip3.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 12px;
+    }
+    h3 {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    input, textarea, button {
+      width: 100%;
+      font-size: 16px;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+    small {
+      color: #555;
+      font-size: 12px;
+    }
+    button {
+      margin-top: 14px;
+      padding: 10px;
+    }
+  </style>
 </head>
+
 <body>
-  <h3>新患アンケート</h3>
+<h3>新患アンケート</h3>
 
-  <form id="form">
-    <!-- 郵便番号 -->
-    郵便番号（必須）<br>
-    <input type="text" name="zip" required
-      onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');"><br><br>
+<form id="form">
 
-    <!-- 都道府県 -->
-    都道府県（必須）<br>
-    <input type="text" name="pref" required><br><br>
+  <label>郵便番号（必須）</label>
+  <input type="text" name="zip" required
+    onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');">
 
-    <!-- 市区町村 -->
-    市区町村（必須）<br>
-    <input type="text" name="city" required><br><br>
+  <label>都道府県（必須）</label>
+  <input type="text" name="pref" required>
 
-    <!-- 町名・番地 -->
-    町名・番地（必須）<br>
-    <input type="text" name="town" required><br><br>
+  <label>市区町村（必須）</label>
+  <input type="text" name="city" required>
 
-    <!-- 建物名 -->
-    建物名・部屋番号<br>
-    <input type="text" name="building"><br><br>
+  <label>町名（必須）</label>
+  <input type="text" name="town" required>
 
-    <!-- 氏名 -->
-    お名前を入力してください（必須）<br>
-    <input type="text" name="name" required><br><br>
+  <label>番地（必須）</label>
+  <input type="text" name="address_number" required>
 
-    <!-- 電話番号 -->
-    電話番号を入力してください（必須）<br>
-    <input type="tel" name="tel" required><br><br>
+  <label>建物名・部屋番号</label>
+  <input type="text" name="building">
 
-    <!-- 事前連絡 -->
-    薬局へ事前に伝えておきたいことはございますか？<br>
-    <small>（副作用歴、アレルギー歴、妊娠有無、授乳中など）</small><br>
-    <textarea name="message" rows="4"></textarea><br><br>
+  <label>お名前（必須）</label>
+  <input type="text" name="name" required>
 
-    <!-- LINE情報（非表示） -->
-    <input type="hidden" name="line_name">
-    <input type="hidden" name="line_user_id">
+  <label>電話番号（必須）</label>
+  <input type="tel" name="tel" required>
 
-    <button type="submit">送信</button>
-  </form>
+  <label>
+    薬局に事前に伝えておきたいことはありますか？<br>
+    <small>（副作用・アレルギー歴、妊娠・授乳の有無 など）</small>
+  </label>
+  <textarea name="message" rows="3"></textarea>
+
+  <!-- LINE情報 -->
+  <input type="hidden" name="line_name">
+  <input type="hidden" name="line_user_id">
+
+  <button type="submit">送信</button>
+</form>
 
 <script>
-  async function initLiff() {
-    await liff.init({ liffId: "2008712193-tMjgLh5i" });
+async function initLiff() {
+  await liff.init({ liffId: "2008712193-tMjgLh5i" });
 
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      document.querySelector('[name="line_name"]').value = profile.displayName;
-      document.querySelector('[name="line_user_id"]').value = profile.userId;
-    }
+  if (liff.isLoggedIn()) {
+    const profile = await liff.getProfile();
+    document.querySelector('[name="line_name"]').value = profile.displayName;
+    document.querySelector('[name="line_user_id"]').value = profile.userId;
   }
+}
 
-  initLiff();
+initLiff();
 
-  document.getElementById("form").addEventListener("submit", e => {
-    e.preventDefault();
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
 
-    fetch("https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec", {
-      method: "POST",
-      body: new FormData(e.target)
-    }).then(() => {
-      alert("送信しました");
-      liff.closeWindow();
-    });
+  fetch("https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec", {
+    method: "POST",
+    body: new FormData(e.target)
+  }).then(() => {
+    alert("送信しました");
+    liff.closeWindow();
   });
+});
 </script>
+
 </body>
 </html>
+
+
