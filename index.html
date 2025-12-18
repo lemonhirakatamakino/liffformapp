@@ -4,59 +4,79 @@
   <meta charset="utf-8">
   <title>新患アンケート</title>
 
+  <!-- LIFF -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
   <!-- 郵便番号→住所 -->
   <script src="https://ajaxzip3.github.io/ajaxzip3.js"></script>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
   <h3>新患アンケート</h3>
 
   <form id="form">
+    <!-- 郵便番号 -->
     郵便番号（必須）<br>
     <input type="text" name="zip" required
       onKeyUp="AjaxZip3.zip2addr(this,'','pref','city','town');"><br><br>
 
+    <!-- 都道府県 -->
     都道府県（必須）<br>
     <input type="text" name="pref" required><br><br>
 
+    <!-- 市区町村 -->
     市区町村（必須）<br>
     <input type="text" name="city" required><br><br>
 
+    <!-- 町名・番地 -->
     町名・番地（必須）<br>
     <input type="text" name="town" required><br><br>
 
+    <!-- 建物名 -->
     建物名・部屋番号<br>
     <input type="text" name="building"><br><br>
 
-    お名前（必須）<br>
+    <!-- 氏名 -->
+    お名前を入力してください（必須）<br>
     <input type="text" name="name" required><br><br>
 
-    電話番号（必須）<br>
+    <!-- 電話番号 -->
+    電話番号を入力してください（必須）<br>
     <input type="tel" name="tel" required><br><br>
 
-    薬局へ事前に伝えておきたいこと<br>
+    <!-- 事前連絡 -->
+    薬局へ事前に伝えておきたいことはございますか？<br>
     <small>（副作用歴、アレルギー歴、妊娠有無、授乳中など）</small><br>
     <textarea name="message" rows="4"></textarea><br><br>
+
+    <!-- LINE情報（非表示） -->
+    <input type="hidden" name="line_name">
+    <input type="hidden" name="line_user_id">
 
     <button type="submit">送信</button>
   </form>
 
 <script>
+  async function initLiff() {
+    await liff.init({ liffId: "2008712193-tMjgLh5i" });
+
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      document.querySelector('[name="line_name"]').value = profile.displayName;
+      document.querySelector('[name="line_user_id"]').value = profile.userId;
+    }
+  }
+
+  initLiff();
+
   document.getElementById("form").addEventListener("submit", e => {
     e.preventDefault();
 
-    fetch(
-      "https://script.google.com/macros/s/AKfycbxqQ2GT0syvIiU0KHHtftNKH5kBsD6NImMFg75nMJpLKcQlxVPcW8NOgAWiozTLFFhm0g/exec",
-      {
-        method: "POST",
-        body: new FormData(e.target)
-      }
-    ).then(() => {
+    fetch("https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec", {
+      method: "POST",
+      body: new FormData(e.target)
+    }).then(() => {
       alert("送信しました");
-    }).catch(() => {
-      alert("送信に失敗しました。時間をおいて再度お試しください。");
+      liff.closeWindow();
     });
   });
 </script>
