@@ -159,9 +159,6 @@ cursor: pointer;
 </label>
 <textarea name="message" rows="3"></textarea>
 
-<input type="hidden" name="line_name">
-<input type="hidden" name="line_user_id">
-
 <button type="submit" id="submit-btn">回答する</button>
 </form>
 
@@ -183,23 +180,20 @@ const submitBtn = document.getElementById("submit-btn");
 const alertOverlay = document.getElementById("custom-alert-overlay");
 const alertOkBtn = document.getElementById("alert-ok-btn");
 
+// LIFF初期化
 async function initLiff() {
 try {
+// LIFF IDはご自身のものを使用
 await liff.init({ liffId: "2008712193-tMjgLh5i" });
 
-// --- 変更点2: ログインチェックと強制ログイン ---
+// 未ログインならログイン画面へ強制遷移
 if (!liff.isLoggedIn()) {
-// 未ログインならLINEログイン画面へ飛ばす
 liff.login();
 return;
 }
 
-// ログイン済みならプロフィール取得して表示
-const profile = await liff.getProfile();
-document.querySelector('[name="line_name"]').value = profile.displayName;
-document.querySelector('[name="line_user_id"]').value = profile.userId;
-
-// 準備ができたらローディングを消してフォームを表示
+// ログイン済みならフォームを表示
+// ★変更点: ここで getProfile はもうしません
 loadingDiv.style.display = "none";
 form.style.display = "block";
 
@@ -210,17 +204,27 @@ loadingDiv.innerText = "エラーが発生しました。アプリを開き直�
 }
 initLiff();
 
+// 送信処理
 form.addEventListener("submit", e => {
 e.preventDefault();
 
 submitBtn.disabled = true;
 submitBtn.innerText = "送信中...";
 
+// ★重要: ここでIDトークンを取得
+const idToken = liff.getIDToken();
+
+// フォームデータを作成
+const formData = new FormData(e.target);
+
+// ★重要: IDトークンをGASへ送るデータに追加
+formData.append('idToken', idToken);
+
 fetch(
 "https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec",
 {
 method: "POST",
-body: new FormData(e.target)
+body: formData
 }
 ).then(() => {
 alertOverlay.style.display = "flex";
@@ -238,3 +242,4 @@ liff.closeWindow();
 
 </body>
 </html>
+
