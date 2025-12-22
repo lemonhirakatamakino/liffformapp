@@ -161,6 +161,7 @@ cursor: pointer;
 
 <input type="hidden" name="line_name">
 <input type="hidden" name="line_user_id">
+<input type="hidden" name="line_id_token">
 
 <button type="submit" id="submit-btn">回答する</button>
 </form>
@@ -210,6 +211,9 @@ loadingDiv.innerText = "エラーが発生しました。アプリを開き直�
 }
 initLiff();
 
+const idToken = liff.getIDToken();
+document.querySelector('[name="line_id_token"]').value = idToken;
+
 form.addEventListener("submit", e => {
 e.preventDefault();
 
@@ -238,3 +242,4 @@ liff.closeWindow();
 
 </body>
 </html>
+
