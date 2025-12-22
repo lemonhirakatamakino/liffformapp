@@ -210,30 +210,22 @@ loadingDiv.innerText = "エラーが発生しました。アプリを開き直�
 }
 initLiff();
 
-form.addEventListener("submit", async e => { // async を追加
+form.addEventListener("submit", e => {
 e.preventDefault();
 
 submitBtn.disabled = true;
 submitBtn.innerText = "送信中...";
 
-// ★追加: LINEの身分証（IDトークン）を取得
-const idToken = liff.getIDToken();
-
-// フォームデータを作成
-const formData = new FormData(e.target);
-// ★追加: GASに身分証を送る
-formData.append('idToken', idToken);
-
 fetch(
 "https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec",
 {
 method: "POST",
-body: formData
+body: new FormData(e.target)
 }
 ).then(() => {
 alertOverlay.style.display = "flex";
 }).catch((err) => {
-alert("通信エラーが発生しました。");
+alert("通信エラーが発生しました。もう一度お試しください。");
 submitBtn.disabled = false;
 submitBtn.innerText = "回答する";
 });
