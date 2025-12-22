@@ -159,8 +159,6 @@ cursor: pointer;
 </label>
 <textarea name="message" rows="3"></textarea>
 
-<input type="hidden" name="line_name">
-<input type="hidden" name="line_user_id">
 <input type="hidden" name="line_id_token">
 
 <button type="submit" id="submit-btn">回答する</button>
@@ -193,12 +191,7 @@ async function initLiff() {
       return;
     }
 
-    // ▼ ログイン完了後ここ
-    const profile = await liff.getProfile();
-
-    document.querySelector('[name="line_name"]').value = profile.displayName;
-    document.querySelector('[name="line_user_id"]').value = profile.userId;
-
+    // id_token のみ取得
     const idToken = liff.getIDToken();
     document.querySelector('[name="line_id_token"]').value = idToken;
 
@@ -246,6 +239,7 @@ liff.closeWindow();
 
 </body>
 </html>
+
 
 
 
