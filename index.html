@@ -199,7 +199,6 @@ async function initLiff() {
     document.querySelector('[name="line_name"]').value = profile.displayName;
     document.querySelector('[name="line_user_id"]').value = profile.userId;
 
-    // ▼ ここが正解
     const idToken = liff.getIDToken();
     document.querySelector('[name="line_id_token"]').value = idToken;
 
@@ -215,23 +214,29 @@ async function initLiff() {
 initLiff();
 
 form.addEventListener("submit", e => {
-e.preventDefault();
+  e.preventDefault();
 
-submitBtn.disabled = true;
-submitBtn.innerText = "送信中...";
+  submitBtn.disabled = true;
+  submitBtn.innerText = "送信中...";
 
-fetch(
-"https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec",
-{
-method: "POST",
-body: new FormData(e.target)
-}
-).then(() => {
-alertOverlay.style.display = "flex";
-}).catch((err) => {
-alert("通信エラーが発生しました。もう一度お試しください。");
-submitBtn.disabled = false;
-submitBtn.innerText = "回答する";
+  fetch(
+    "https://script.google.com/macros/s/AKfycbxlx3vmMSccfsfhl4eqlch6bs4_Jqv4HfM7MxDxUgtrfehkeMkeLbd5L6HSqQvFau2qrg/exec",
+    {
+      method: "POST",
+      body: new FormData(e.target)
+    }
+  )
+  .then(res => res.text())
+  .then(text => {
+    console.log("GAS response:", text);
+    alertOverlay.style.display = "flex";
+  })
+  .catch(err => {
+    console.error(err);
+    alert("通信エラーが発生しました。もう一度お試しください。");
+    submitBtn.disabled = false;
+    submitBtn.innerText = "回答する";
+  });
 });
 
 alertOkBtn.addEventListener("click", () => {
@@ -241,6 +246,7 @@ liff.closeWindow();
 
 </body>
 </html>
+
 
 
 
