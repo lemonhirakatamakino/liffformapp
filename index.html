@@ -185,34 +185,34 @@ const alertOverlay = document.getElementById("custom-alert-overlay");
 const alertOkBtn = document.getElementById("alert-ok-btn");
 
 async function initLiff() {
-try {
-await liff.init({ liffId: "2008712193-tMjgLh5i" });
+  try {
+    await liff.init({ liffId: "2008712193-tMjgLh5i" });
 
-// --- 変更点2: ログインチェックと強制ログイン ---
-if (!liff.isLoggedIn()) {
-// 未ログインならLINEログイン画面へ飛ばす
-liff.login();
-return;
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+
+    // ▼ ログイン完了後ここ
+    const profile = await liff.getProfile();
+
+    document.querySelector('[name="line_name"]').value = profile.displayName;
+    document.querySelector('[name="line_user_id"]').value = profile.userId;
+
+    // ▼ ここが正解
+    const idToken = liff.getIDToken();
+    document.querySelector('[name="line_id_token"]').value = idToken;
+
+    loadingDiv.style.display = "none";
+    form.style.display = "block";
+
+  } catch (err) {
+    console.error(err);
+    loadingDiv.innerText = "エラーが発生しました。アプリを開き直してください。";
+  }
 }
 
-// ログイン済みならプロフィール取得して表示
-const profile = await liff.getProfile();
-document.querySelector('[name="line_name"]').value = profile.displayName;
-document.querySelector('[name="line_user_id"]').value = profile.userId;
-
-// 準備ができたらローディングを消してフォームを表示
-loadingDiv.style.display = "none";
-form.style.display = "block";
-
-} catch (err) {
-console.error(err);
-loadingDiv.innerText = "エラーが発生しました。アプリを開き直してください。";
-}
-}
 initLiff();
-
-const idToken = liff.getIDToken();
-document.querySelector('[name="line_id_token"]').value = idToken;
 
 form.addEventListener("submit", e => {
 e.preventDefault();
@@ -242,4 +242,5 @@ liff.closeWindow();
 
 </body>
 </html>
+
 
