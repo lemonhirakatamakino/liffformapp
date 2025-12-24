@@ -153,11 +153,30 @@ cursor: pointer;
 <input type="tel" name="tel" required placeholder="090-1234-5678">
 
 <label>
-薬局に事前に伝えておきたいことはありますか？
+薬局に事前に伝えておきたいことはありますか？ <span style="color:red;">（必須）</span>
 <br>
 <small>（副作用・アレルギー歴、妊娠・授乳の有無 など）</small>
 </label>
-<textarea name="message" rows="3"></textarea>
+
+<div style="margin-top:8px;">
+<label style="font-weight:normal;">
+<input type="radio" name="message_flag" value="none" required>
+なし
+</label>
+<br>
+<label style="font-weight:normal;">
+<input type="radio" name="message_flag" value="yes">
+あり
+</label>
+</div>
+
+<textarea
+name="message"
+id="message-textarea"
+rows="3"
+placeholder="例：ペニシリンで発疹が出たことがあります"
+style="display:none; margin-top:8px;"
+></textarea>
 
 <input type="hidden" name="line_id_token">
 
@@ -173,6 +192,24 @@ cursor: pointer;
 </div>
 </div>
 </div>
+
+<script>
+const radios = document.querySelectorAll('input[name="message_flag"]');
+const messageTextarea = document.getElementById("message-textarea");
+
+radios.forEach(radio => {
+radio.addEventListener("change", () => {
+if (radio.value === "yes" && radio.checked) {
+messageTextarea.style.display = "block";
+messageTextarea.required = true;
+} else if (radio.value === "none" && radio.checked) {
+messageTextarea.style.display = "none";
+messageTextarea.required = false;
+messageTextarea.value = "";
+}
+});
+});
+</script>
 
 <script>
 // UI要素の取得
@@ -239,4 +276,5 @@ liff.closeWindow();
 
 </body>
 </html>
+
 
